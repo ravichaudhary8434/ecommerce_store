@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const requestHandler = (res, res) => {
+const requestHandler = (req, res) => {
   const url = req.url;
   const method = req.method;
   if (url === "/") {
