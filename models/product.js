@@ -57,7 +57,7 @@ module.exports = class Products {
   static deleteById(id) {
     getProductsFromFile((products) => {
       const updatedProducts = products.filter((p) => p.id !== id);
-      const product = products.filter((p) => p.id === id);
+      const product = products.find((p) => p.id === id);
       fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
         if (!err) {
           Cart.deleteProduct(id, +product.price);

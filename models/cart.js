@@ -35,15 +35,24 @@ module.exports = class Cart {
       if (err) return;
       const cart = JSON.parse(fileContent);
       const productIndex = cart.products.findIndex((p) => p.id === id);
+      if (productIndex < 0) return;
       const product = cart.products[productIndex];
       cart.products.splice(productIndex, 1);
       cart.totalPrice = cart.totalPrice - product.qty * price;
-
-      console.log(cart.totalPrice, product.qty, price);
-
       fs.writeFile(p, JSON.stringify(cart), (err) => {
         if (err) console.log(err);
       });
+    });
+  }
+
+  static getCart(cb) {
+    fs.readFile(p, (err, fileContent) => {
+      const cart = JSON.parse(fileContent);
+      if (err) {
+        cb(null);
+      }
+
+      cb(cart);
     });
   }
 };
