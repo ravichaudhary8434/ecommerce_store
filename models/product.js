@@ -1,18 +1,49 @@
-const Sequelize = require("sequelize");
+const mongodb = require("mongodb");
+const getDb = require("../util/database").getDb;
 
-const sequelize = require("../util/database");
+class Product {
+  constructor(title, price, description, imageUrl, id, userId) {
+    this.title = title;
+    this.price = price;
+    this.description = description;
+    this.imageUrl = imageUrl;
+    if (id) {
+      this._id = new mongodb.ObjectId(id);
+    }
+    this.userId = userId;
+  }
 
-const Product = sequelize.define("product", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  title: { type: Sequelize.STRING },
-  price: { type: Sequelize.DOUBLE, allowNull: false },
-  imageUrl: { type: Sequelize.STRING, allowNull: false },
-  description: { type: Sequelize.STRING, allowNull: false },
-});
+  save() {
+    const db = getDb();
+    if (this._id) {
+      return db
+        .collection("products")
+        .updateOne({ _id: this._id }, { $set: this });
+    } else {
+      return db.collection("products").insertOne(this);
+    }
+  }
+
+  static fetchAll() {
+    const db = getDb();
+    return db.collection("products").find().toArray();
+  }
+
+  static findById(id) {
+    const db = getDb();
+    return db
+      .collection("products")
+      .find({ _id: new mongodb.ObjectId(id) })
+      .next();
+  }
+
+  static deleteById(id) {
+    const db = getDb();
+
+    return db
+      .collection("products")
+      .deleteOne({ _id: new mongodb.ObjectId(id) });
+  }
+}
 
 module.exports = Product;
