@@ -23,6 +23,7 @@
                     </ul>
                     <hr>
                     <form action="/create-order" method="POST">
+                        <input type="hidden" value="<%= csrfToken %>" name="_csrf">
                         <button class="btn" type="submit">Order Now!</button>
                     </form>
                     <% } else { %>
