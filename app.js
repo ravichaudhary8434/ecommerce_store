@@ -6,6 +6,7 @@ const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flash = require("connect-flash");
+const throwErr = require("./util/throwErr");
 
 const MONGODB_URI =
   "mongodb+srv://malhotraravi842:CzVmfmYwjIX8fsKR@cluster0.iyaxi.mongodb.net/shop?retryWrites=true&w=majority";
@@ -42,20 +43,6 @@ app.use(csrfProtection);
 app.use(flash());
 
 app.use((req, res, next) => {
-  if (!req.session.user) {
-    return next();
-  }
-  User.findById(req.session.user._id)
-    .then((user) => {
-      req.user = user;
-      next();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
-app.use((req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) {
     message = message[0];
@@ -69,11 +56,36 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
+    .then((user) => {
+      if (!user) {
+        return next();
+      }
+      req.user = user;
+      next();
+    })
+    .catch((err) => throwErr(err, next));
+});
+
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.get("/500", errorController.get500);
+
 app.use(errorController.get404);
+
+app.use((error, req, res, next) => {
+  res.status(500).render("500", {
+    pageTitle: "Something went wrong!",
+    path: "/500",
+    isAuthenticated: req.isAuthenticated,
+  });
+});
 
 mongoose
   .connect(MONGODB_URI)
