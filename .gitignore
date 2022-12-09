@@ -1,6 +1,8 @@
 # Node Module
 /node_modules
 
+package-lock.json
+
 # Data
 /data
 
