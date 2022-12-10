@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const moment = require("moment");
 const { validationResult } = require("express-validator");
+const throwErr = require("../util/throwErr");
 
 var transporter = nodemailer.createTransport({
   host: "smtp.mailtrap.io",
@@ -75,13 +76,10 @@ exports.postLogin = (req, res, next) => {
           });
         })
         .catch((err) => {
-          console.log(err);
           return res.redirect("/login");
         });
     })
-    .catch((err) => {
-      console.log(err);
-    });
+    .catch((err) => throwErr(err, next));
 };
 
 exports.postSignup = (req, res, next) => {
@@ -119,9 +117,7 @@ exports.postSignup = (req, res, next) => {
           subject: "Signup Successfuly!",
           text: "Your account has been successfully created.",
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => throwErr(err, next));
     });
 };
 
@@ -141,7 +137,6 @@ exports.getReset = (req, res, next) => {
 exports.postReset = (req, res, next) => {
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
-      console.log(err);
       return res.redirect("/reset");
     }
 
@@ -160,18 +155,14 @@ exports.postReset = (req, res, next) => {
       })
       .then((result) => {
         res.redirect("/");
-        return transporter
-          .sendMail({
-            from: "rc069056@gmail.com",
-            to: req.body.email,
-            subject: "Password Reset!",
-            html: `<a href='http://localhost:3000/reset/${token}'>Password Reset Link</a>`,
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        return transporter.sendMail({
+          from: "rc069056@gmail.com",
+          to: req.body.email,
+          subject: "Password Reset!",
+          html: `<a href='http://localhost:3000/reset/${token}'>Password Reset Link</a>`,
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => throwErr(err, next));
   });
 };
 
@@ -192,7 +183,7 @@ exports.getNewPassword = (req, res, next) => {
         passwordToken: token,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => throwErr(err, next));
 };
 
 exports.postNewPassword = (req, res, next) => {
@@ -216,5 +207,5 @@ exports.postNewPassword = (req, res, next) => {
     .then(() => {
       res.redirect("/");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => throwErr(err, next));
 };
