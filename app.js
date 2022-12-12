@@ -1,3 +1,4 @@
+require("dotenv").config();
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -9,8 +10,7 @@ const flash = require("connect-flash");
 const throwErr = require("./util/throwErr");
 const multer = require("multer");
 
-const MONGODB_URI =
-  "mongodb+srv://malhotraravi842:CzVmfmYwjIX8fsKR@cluster0.iyaxi.mongodb.net/shop?retryWrites=true&w=majority";
+const MONGODB_URI = `mongodb+srv://malhotraravi842:${process.env.MONGODB_PASS}@cluster0.iyaxi.mongodb.net/shop?retryWrites=true&w=majority`;
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
